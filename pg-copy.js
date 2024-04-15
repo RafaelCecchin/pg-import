@@ -8,24 +8,30 @@ const { hideBin } = require('yargs/helpers');
 const dbSources = {
   'erp': {
     name: 'erp',
-    host: process.env.ERP_HOST,
-    user: process.env.ERP_USER,
-    password: process.env.ERP_PASSWORD,
+    host: process.env.PROD_ERP_HOST,
+    user: process.env.PROD_ERP_USER,
+    password: process.env.PROD_ERP_PASSWORD
   },
   'producao': {
-    name: 'producao',
-    host: process.env.PRODUCAO_HOST,
-    user: process.env.PRODUCAO_USER,
-    password: process.env.PRODUCAO_PASSWORD,
+    name: 'Sistema Producao',
+    host: process.env.PROD_PRODUCAO_HOST,
+    user: process.env.PROD_PRODUCAO_USER,
+    password: process.env.PROD_PRODUCAO_PASSWORD
   },
 };
 
 const dbDestinations = {
-  'dbtest': {
-    name: 'dbtest',
-    host: process.env.DBTEST_HOST,
-    user: process.env.DBTEST_USER,
-    password: process.env.DBTEST_PASSWORD,
+  'erp': {
+    name: 'erp',
+    host: process.env.DEV_ERP_HOST,
+    user: process.env.DEV_ERP_USER,
+    password: process.env.DEV_ERP_PASSWORD
+  },
+  'producao': {
+    name: 'Sistema Producao',
+    host: process.env.DEV_PRODUCAO_HOST,
+    user: process.env.DEV_PRODUCAO_USER,
+    password: process.env.DEV_PRODUCAO_PASSWORD
   }
 };
 
