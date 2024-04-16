@@ -77,8 +77,11 @@ if (!dbDestInfo) {
   process.exit(1);
 }
 
-const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -s -c -t ${argv.tables.join(' -t ')} -Fp ${argv['db-source']} > ${path.join(dumpDir, 'schema.sql')}`;
-const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 --rows-per-insert=2000 -Fp --column-inserts -a -t ${argv.tables.join(' -t ')} ${argv['db-source']} > ${path.join(dumpDir, 'data.sql')}`;
+const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E LATIN1 -s -c -C -t ${argv.tables.join(' -t ')} -Fp ${dbSourceInfo.name} > ${path.join(dumpDir, 'schema')}`;
+const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E LATIN1 --rows-per-insert=1000 -Fp --column-inserts -a -t ${argv.tables.join(' -t ')} ${dbSourceInfo.name} > ${path.join(dumpDir, 'data')}`;
+
+process.env.LC_CTYPE = 'pt_BR.ISO-8859-1';
+process.env.LC_COLLATE = 'pt_BR.ISO-8859-1';
 
 try {
     process.env.PGPASSWORD = dbSourceInfo.password;
@@ -94,14 +97,24 @@ try {
     process.exit(1);
 }
 
-const pgRestoreSchema = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d ${argv['db-dest']} -1 -f ${path.join(dumpDir, 'schema.sql')}`;
-const pgRestoreData = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d ${argv['db-dest']} -1 -f ${path.join(dumpDir, 'data.sql')}`;
+const pgRestoreSchema = [
+    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "DROP DATABASE IF EXISTS ${dbDestInfo.name};"`,
+    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE ${dbDestInfo.name};"`,
+    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT CONNECT ON DATABASE ${dbDestInfo.name} TO ${dbDestInfo.user};"`,
+    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT USAGE ON SCHEMA public TO ${dbDestInfo.user};"`,
+    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d ${dbDestInfo.name} -1 -f ${path.join(dumpDir, 'schema')}`
+];
+
+const pgRestoreData = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d ${dbDestInfo.name} -1 -f ${path.join(dumpDir, 'data')}`;
 
 try {
     process.env.PGPASSWORD = dbDestInfo.password;
-
+    
     console.log('Restaurando esquema no banco de destino...');
-    execSync(pgRestoreSchema, { stdio: 'inherit', shell: 'cmd.exe' });
+    pgRestoreSchema.forEach(cmd => {
+        execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
+    });
+
     console.log('Restaurando dados no banco de destino...');
     execSync(pgRestoreData, { stdio: 'inherit', shell: 'cmd.exe' });
     
@@ -111,5 +124,5 @@ try {
     process.exit(1);
 }
 
-fs.unlinkSync(path.join(dumpDir, 'schema.sql'));
-fs.unlinkSync(path.join(dumpDir, 'data.sql'));
+fs.unlinkSync(path.join(dumpDir, 'schema'));
+fs.unlinkSync(path.join(dumpDir, 'data'));
