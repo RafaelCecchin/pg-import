@@ -62,6 +62,12 @@ const argv = yargs(hideBin(process.argv))
       type: 'boolean',
       default: false,
     },
+    'encode': {
+      alias: 'e',
+      description: 'Definir a codificação dos dados',
+      type: 'string',
+      default: 'LATIN1',
+    },
   })
   .argv;
 
@@ -84,8 +90,8 @@ if (!dbDestInfo) {
 
 const clean = argv['clean'];
 
-const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E LATIN1 -x -O -s ${clean ? '-c -C' : ''} -t ${argv.tables.join(' -t ')} -Fp "${dbSourceInfo.name}" > ${path.join(dumpDir, 'schema')}`;
-const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E LATIN1 --rows-per-insert=1000 -Fp --column-inserts -a -t ${argv.tables.join(' -t ')} "${dbSourceInfo.name}" > ${path.join(dumpDir, 'data')}`;
+const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O -s ${clean ? '-c -C' : ''} -t ${argv.tables.join(' -t ')} -Fp "${dbSourceInfo.name}" > ${path.join(dumpDir, 'schema')}`;
+const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} --rows-per-insert=1000 -Fp --column-inserts -a -t ${argv.tables.join(' -t ')} "${dbSourceInfo.name}" > ${path.join(dumpDir, 'data')}`;
 
 try {
     process.env.PGPASSWORD = dbSourceInfo.password;
@@ -136,5 +142,5 @@ try {
     process.exit(1);
 }
 
-fs.unlinkSync(path.join(dumpDir, 'schema'));
-fs.unlinkSync(path.join(dumpDir, 'data'));
+// fs.unlinkSync(path.join(dumpDir, 'schema'));
+// fs.unlinkSync(path.join(dumpDir, 'data'));
