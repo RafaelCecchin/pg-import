@@ -1,11 +1,12 @@
 {
   "name": "@rafaelcecchin/pg-import",
   "version": "1.0.0",
+  "private": false,
   "description": "Copiar dados entre bancos PostgreSQL",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pg-copy": "node pg-import.js"
+    "pg-import": "node pg-import.js"
   },
   "author": "RafaelCecchin",
   "license": "ISC",
