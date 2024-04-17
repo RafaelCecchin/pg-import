@@ -72,22 +72,35 @@ const argv = yargs(hideBin(process.argv))
       default: false,
     },
     'encode': {
-      alias: 'e',
       description: 'Definir a codificação dos dados',
       type: 'string',
       default: 'LATIN1',
     },
     'ignore': {
-      alias: 'i',
       description: 'Ignorar dados de tabelas',
       type: 'array'
     },
     'rows-per-insert': {
-      alias: 'r',
       description: 'Quantidade de linhas por insert',
       type: 'string',
       default: '2000',
+    },
+    'only-restore': {
+      description: 'Apenas restaura, não faz o DUMP.',
+      type: 'boolean',
+      default: false,
+    },
+    'only-dump': {
+      description: 'Apenas faz o DUMP, não restaura.',
+      type: 'boolean',
+      default: false,
     }
+  })
+  .check((argv) => {
+    if (argv['only-restore'] && argv['only-dump']) {
+      throw new Error('As opções --only-restore e --only-dump não podem ser usadas simultaneamente.');
+    }
+    return true;
   })
   .argv;
 
@@ -109,11 +122,14 @@ if (!dbDestInfo) {
 }
 
 const clean = argv['clean'];
+const onlyRestore = argv['only-restore'];
+const onlyDump = argv['only-dump'];
 
 const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O -s ${clean ? '-c -C' : ''} -t ${argv.tables.join(' -t ')} -Fp "${dbSourceInfo.name}" > ${path.join(dumpDir, 'schema')}`;
 const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O --rows-per-insert=${argv['rows-per-insert']} -Fp --column-inserts -a ${argv.tables ? `-t ${argv.tables.join(' -t ')}` : ''} ${argv.ignore ? `-T ${argv.ignore.join(' -T ')}` : ''} "${dbSourceInfo.name}" > ${path.join(dumpDir, 'data')}`;
 
-try {
+if (!onlyRestore) {
+  try {
     process.env.PGPASSWORD = dbSourceInfo.password;
 
     console.log('Executando pg_dump para esquema...');
@@ -122,30 +138,32 @@ try {
     execSync(pgDumpOptionsData, { stdio: 'inherit', shell: 'cmd.exe' });
 
     console.log('Backup concluído com sucesso.');
-} catch (error) {
+  } catch (error) {
     console.error('Erro ao executar pg_dump:', error);
     process.exit(1);
+  }
 }
 
-let pgRestoreSchema = [];
-if (clean) {
-  // Se informar o --clean, ele apaga o banco de dados e cria novamente
-  pgRestoreSchema = [
-    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "DROP DATABASE IF EXISTS \\"${dbDestInfo.name}\\""`,
-    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE \\"${dbDestInfo.name}\\""`,
-    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT CONNECT ON DATABASE \\"${dbDestInfo.name}\\" TO ${dbDestInfo.user};"`,
-    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT USAGE ON SCHEMA public TO ${dbDestInfo.user};"`
-  ];
-} else {
-  // Se não informar o --clean, ele apaga apenas as tabelas informadas
-  argv.tables.forEach(element => {
-    pgRestoreSchema.push(`psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -1 -c "DROP TABLE IF EXISTS \\"${element}\\""`);
-  });
-}
-pgRestoreSchema.push(`psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -1 -f ${path.join(dumpDir, 'schema')}`);
-const pgRestoreData = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -1 -f ${path.join(dumpDir, 'data')}`;
-
-try {
+if (!onlyDump) {
+  let pgRestoreSchema = [];
+  if (clean) {
+    // Se informar o --clean, ele apaga o banco de dados e cria novamente
+    pgRestoreSchema = [
+      `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "DROP DATABASE IF EXISTS \\"${dbDestInfo.name}\\""`,
+      `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE \\"${dbDestInfo.name}\\""`,
+      `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT CONNECT ON DATABASE \\"${dbDestInfo.name}\\" TO ${dbDestInfo.user};"`,
+      `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT USAGE ON SCHEMA public TO ${dbDestInfo.user};"`
+    ];
+  } else {
+    // Se não informar o --clean, ele apaga apenas as tabelas informadas
+    argv.tables.forEach(element => {
+      pgRestoreSchema.push(`psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -1 -c "DROP TABLE IF EXISTS \\"${element}\\""`);
+    });
+  }
+  pgRestoreSchema.push(`psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -1 -f ${path.join(dumpDir, 'schema')}`);
+  const pgRestoreData = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -1 -f ${path.join(dumpDir, 'data')}`;
+    
+  try {
     process.env.PGPASSWORD = dbDestInfo.password;
     
     console.log('\nPressione Enter para iniciar a restauração do esquema e dos dados...');
@@ -164,9 +182,10 @@ try {
       process.stdin.setRawMode(false);
       process.stdin.pause();
     });
-} catch (error) {
+  } catch (error) {
     console.error('Erro ao executar psql:', error);
     process.exit(1);
+  }
 }
 
 // fs.unlinkSync(path.join(dumpDir, 'schema'));
