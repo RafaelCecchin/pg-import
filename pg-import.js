@@ -32,7 +32,7 @@ if (!onlyRestore) {
   }
 }
 
-// Restore
+// RESTORE
 if (!onlyDump) {
 
   let pgRestoreSchema = [];

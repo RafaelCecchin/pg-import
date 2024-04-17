@@ -5,20 +5,14 @@ Script CLI Node para transferir dados entre bancos de dados PostgreSQL de forma 
 
 ## Como usar
 
-### Passo 1: Adicionar arquivos (apenas para PG v10 ou anterior)
+### Passo 1: Instale o PostgreSQL v12 ou superior
 
-Copie os arquivos abaixo:
-- `/services/pg_dump.exe`
-- `/services/pg_restore.exe`
-
-E cole na pasta "bin" do seu PostgreSQL.
-Obs: no meu caso, fica localizada em "`C:\Program Files\PostgreSQL\10\bin`".
-
-Isso é necessário para que o comando `--rows-per-insert=1000`, do `pg_dump`, funcione.
+Isso é necessário para que o comando `--rows-per-insert`, do `pg_dump`, funcione.
 
 ### Passo 2: Adicionar as variáveis de ambiente
 
 Adicione à variável de ambiente do sistema "Path" o caminho da pasta "bin" do seu PostgreSQL.
+Obs: no meu caso, fica localizada em "`C:\Program Files\PostgreSQL\12\bin`".
 
 ### Passo 3: Instale o Node.js (se não tiver)
 
