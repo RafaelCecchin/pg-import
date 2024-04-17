@@ -5,6 +5,15 @@ const path = require('path');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 
+function waitForEnter(callback) {
+  process.stdin.setRawMode(true);
+  process.stdin.resume();
+  process.stdin.once('data', () => {
+      process.stdin.setRawMode(false);
+      if (callback) callback();
+  });
+}
+
 const dbSources = {
   'erp': {
     name: 'erp',
@@ -73,6 +82,12 @@ const argv = yargs(hideBin(process.argv))
       description: 'Ignorar dados de tabelas',
       type: 'array'
     },
+    'rows-per-insert': {
+      alias: 'r',
+      description: 'Quantidade de linhas por insert',
+      type: 'string',
+      default: '2000',
+    }
   })
   .argv;
 
@@ -96,7 +111,7 @@ if (!dbDestInfo) {
 const clean = argv['clean'];
 
 const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O -s ${clean ? '-c -C' : ''} -t ${argv.tables.join(' -t ')} -Fp "${dbSourceInfo.name}" > ${path.join(dumpDir, 'schema')}`;
-const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O --rows-per-insert=1000 -Fp --column-inserts -a ${argv.tables ? `-t ${argv.tables.join(' -t ')}` : ''} ${argv.ignore ? `-T ${argv.ignore.join(' -T ')}` : ''} "${dbSourceInfo.name}" > ${path.join(dumpDir, 'data')}`;
+const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O --rows-per-insert=${argv['rows-per-insert']} -Fp --column-inserts -a ${argv.tables ? `-t ${argv.tables.join(' -t ')}` : ''} ${argv.ignore ? `-T ${argv.ignore.join(' -T ')}` : ''} "${dbSourceInfo.name}" > ${path.join(dumpDir, 'data')}`;
 
 try {
     process.env.PGPASSWORD = dbSourceInfo.password;
@@ -133,15 +148,22 @@ const pgRestoreData = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 
 try {
     process.env.PGPASSWORD = dbDestInfo.password;
     
-    console.log('Restaurando esquema no banco de destino...');
-    pgRestoreSchema.forEach(cmd => {
-        execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
-    });
+    console.log('\nPressione Enter para iniciar a restauração do esquema e dos dados...');
 
-    console.log('Restaurando dados no banco de destino...');
-    execSync(pgRestoreData, { stdio: 'inherit', shell: 'cmd.exe' });
-    
-    console.log('Backup e restauração concluídos com sucesso.');
+    waitForEnter(() => {
+      console.log('Restaurando esquema no banco de destino...');
+      pgRestoreSchema.forEach(cmd => {
+          execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
+      });
+
+      console.log('Restaurando dados no banco de destino...');
+      execSync(pgRestoreData, { stdio: 'inherit', shell: 'cmd.exe' });
+
+      console.log('Backup e restauração concluídos com sucesso.');
+
+      process.stdin.setRawMode(false);
+      process.stdin.pause();
+    });
 } catch (error) {
     console.error('Erro ao executar psql:', error);
     process.exit(1);
