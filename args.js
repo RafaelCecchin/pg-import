@@ -1,20 +1,20 @@
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
-const { dbSources, dbDestinations } = require('./config');
+const { db } = require('./config');
 
 const argv = yargs(hideBin(process.argv))
   .options({
     'db-source': {
       alias: 's',
       description: 'Nome do banco de dados de origem',
-      choices: Object.keys(dbSources),
+      choices: Object.keys(db['dbSources']),
       type: 'string',
       demandOption: true,
     },
     'db-dest': {
       alias: 'd',
       description: 'Nome do banco de dados de destino',
-      choices: Object.keys(dbDestinations),
+      choices: Object.keys(db['dbDestinations']),
       type: 'string',
       demandOption: true,
     },

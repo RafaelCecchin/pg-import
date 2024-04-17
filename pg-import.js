@@ -2,11 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const argv = require('./args');
 const { execSync } = require('child_process');
-const { dbSources, dbDestinations, dumpDir } = require('./config');
+const { db, dumpDir } = require('./config');
 const { waitForEnter } = require('./helper');
 
-const dbSourceInfo = dbSources[argv['db-source']];
-const dbDestInfo = dbDestinations[argv['db-dest']];
+const dbSourceInfo = db['dbSources'][argv['db-source']];
+const dbDestInfo = db['dbDestinations'][argv['db-dest']];
 const clean = argv['clean'];
 const onlyRestore = argv['only-restore'];
 const onlyDump = argv['only-dump'];

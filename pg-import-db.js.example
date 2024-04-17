@@ -1,0 +1,30 @@
+module.exports = {
+    'dbSources': {
+      'erp': {
+        name: 'erp',
+        host: process.env.PROD_ERP_HOST,
+        user: process.env.PROD_ERP_USER,
+        password: process.env.PROD_ERP_PASSWORD
+      },
+      'producao': {
+        name: 'Sistema Producao',
+        host: process.env.PROD_PRODUCAO_HOST,
+        user: process.env.PROD_PRODUCAO_USER,
+        password: process.env.PROD_PRODUCAO_PASSWORD
+      },
+    },
+    'dbDestinations': {
+      'erp': {
+        name: 'erp',
+        host: process.env.DEV_ERP_HOST,
+        user: process.env.DEV_ERP_USER,
+        password: process.env.DEV_ERP_PASSWORD
+      },
+      'producao': {
+        name: 'Sistema Producao',
+        host: process.env.DEV_PRODUCAO_HOST,
+        user: process.env.DEV_PRODUCAO_USER,
+        password: process.env.DEV_PRODUCAO_PASSWORD
+      }
+    }
+}
