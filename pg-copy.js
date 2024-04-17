@@ -68,6 +68,11 @@ const argv = yargs(hideBin(process.argv))
       type: 'string',
       default: 'LATIN1',
     },
+    'ignore': {
+      alias: 'i',
+      description: 'Ignorar dados de tabelas',
+      type: 'array'
+    },
   })
   .argv;
 
@@ -91,7 +96,7 @@ if (!dbDestInfo) {
 const clean = argv['clean'];
 
 const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O -s ${clean ? '-c -C' : ''} -t ${argv.tables.join(' -t ')} -Fp "${dbSourceInfo.name}" > ${path.join(dumpDir, 'schema')}`;
-const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} --rows-per-insert=1000 -Fp --column-inserts -a -t ${argv.tables.join(' -t ')} "${dbSourceInfo.name}" > ${path.join(dumpDir, 'data')}`;
+const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O --rows-per-insert=1000 -Fp --column-inserts -a ${argv.tables ? `-t ${argv.tables.join(' -t ')}` : ''} ${argv.ignore ? `-T ${argv.ignore.join(' -T ')}` : ''} "${dbSourceInfo.name}" > ${path.join(dumpDir, 'data')}`;
 
 try {
     process.env.PGPASSWORD = dbSourceInfo.password;
@@ -112,7 +117,7 @@ if (clean) {
   // Se informar o --clean, ele apaga o banco de dados e cria novamente
   pgRestoreSchema = [
     `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "DROP DATABASE IF EXISTS \\"${dbDestInfo.name}\\""`,
-    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE \\"${dbDestInfo.name}\\"" IF NOT EXISTS`,
+    `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE \\"${dbDestInfo.name}\\""`,
     `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT CONNECT ON DATABASE \\"${dbDestInfo.name}\\" TO ${dbDestInfo.user};"`,
     `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT USAGE ON SCHEMA public TO ${dbDestInfo.user};"`
   ];
