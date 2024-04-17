@@ -34,7 +34,7 @@ npm install
 
 ### Passo 5: Configurar bancos de dados
 
-Edite os objetos `dbSources` e `dbDestinations` do arquivo `pg-copy.js`.
+Edite os objetos `dbSources` e `dbDestinations` do arquivo `config.js`.
 De preferência, utilize o arquivo `.env` para preencher as credenciais de acesso.
 
 ### Passo 6: Faça as transferências
@@ -42,17 +42,19 @@ De preferência, utilize o arquivo `.env` para preencher as credenciais de acess
 Agora que já está tudo configurado, você pode utilizar o bash para fazer transferências entre bancos de dados.
 
 ```bash
-node pg-copy.js --db-source=producao --db-dest=producao --tables=rcn cargos defeitos_causas
+node pg-copy.js --db-source=producao --db-dest=producao --tables=rnc cargos defeitos_causas
 ```
 
 O script acima vai fazer uma cópia das tabelas (`--tables`) do banco de dados de origem (`--db-source`) para o banco de dados de destino (`--db-dest`).
 
-Você pode configurar a codificação passando o parâmetro `--encode` que, por padrão, recebe `LATIN1`.
-Você também pode passar o parâmetro `--clean`, que remove o banco de dados e cria novamente antes de criar as tabelas.
-
-```bash
-node pg-copy.js --db-source=producao --db-dest=producao --tables=rcn cargos defeitos_causas --encode=UTF8 --clean
-```
+Você também pode passar parâmetros adicionais:
+- `--clean`: Limpar o banco de dados de destino antes da cópia
+- `--encode`: Definir a codificação dos dados
+- `--ignore`: Informar que devem ser ignorados na exportação
+- `--rows-per-insert`: Quantidade de linhas por insert
+- `--only-restore`: Apenas restaurar, sem fazer o DUMP
+- `--only-dump`: Apenas fazer o DUMP, sem restaurar
+- `--rm`: Remover os arquivos de backup
 
 ### Considerações finais
 
