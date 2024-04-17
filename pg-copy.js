@@ -94,12 +94,22 @@ const argv = yargs(hideBin(process.argv))
       description: 'Apenas faz o DUMP, não restaura.',
       type: 'boolean',
       default: false,
+    },
+    'rm': {
+      description: 'Remove os arquivos de DUMP.',
+      type: 'boolean',
+      default: false,
     }
   })
   .check((argv) => {
     if (argv['only-restore'] && argv['only-dump']) {
       throw new Error('As opções --only-restore e --only-dump não podem ser usadas simultaneamente.');
     }
+
+    if (argv['only-dump'] && argv['rm']) {
+      throw new Error('As opções --only-dump e --rm não podem ser usadas simultaneamente.');
+    }
+
     return true;
   })
   .argv;
@@ -124,6 +134,7 @@ if (!dbDestInfo) {
 const clean = argv['clean'];
 const onlyRestore = argv['only-restore'];
 const onlyDump = argv['only-dump'];
+const removeFiles = argv['rm'];
 
 const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O -s ${clean ? '-c -C' : ''} -t ${argv.tables.join(' -t ')} -Fp "${dbSourceInfo.name}" > ${path.join(dumpDir, 'schema')}`;
 const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${argv.encode} -x -O --rows-per-insert=${argv['rows-per-insert']} -Fp --column-inserts -a ${argv.tables ? `-t ${argv.tables.join(' -t ')}` : ''} ${argv.ignore ? `-T ${argv.ignore.join(' -T ')}` : ''} "${dbSourceInfo.name}" > ${path.join(dumpDir, 'data')}`;
@@ -166,7 +177,7 @@ if (!onlyDump) {
   try {
     process.env.PGPASSWORD = dbDestInfo.password;
     
-    console.log('\nPressione Enter para iniciar a restauração do esquema e dos dados...');
+    console.log('\nPressione qualquer tecla para iniciar a restauração do esquema e dos dados...');
 
     waitForEnter(() => {
       console.log('Restaurando esquema no banco de destino...');
@@ -179,6 +190,11 @@ if (!onlyDump) {
 
       console.log('Backup e restauração concluídos com sucesso.');
 
+      if (removeFiles) {
+        fs.unlinkSync(path.join(dumpDir, 'schema'));
+        fs.unlinkSync(path.join(dumpDir, 'data'));
+      }
+
       process.stdin.setRawMode(false);
       process.stdin.pause();
     });
@@ -187,6 +203,3 @@ if (!onlyDump) {
     process.exit(1);
   }
 }
-
-// fs.unlinkSync(path.join(dumpDir, 'schema'));
-// fs.unlinkSync(path.join(dumpDir, 'data'));
