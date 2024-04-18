@@ -2,7 +2,7 @@
   "name": "@rafaelcecchin/pg-import",
   "version": "1.0.1",
   "private": false,
-  "description": "Copiar dados entre bancos PostgreSQL",
+  "description": "Node CLI script to transfer data between PostgreSQL databases easily.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
