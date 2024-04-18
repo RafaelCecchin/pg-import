@@ -12,6 +12,9 @@ if (!db['dbSources'] || !db['dbDestinations']) {
   process.exit(1);
 }
 
-const dumpDir = path.join(__dirname, 'dump_files');
+const dumpDir = path.join(process.cwd(), 'dump_files');
+if (!fs.existsSync(dumpDir)) {
+  fs.mkdirSync(dumpDir);
+}
 
 module.exports = { db, dumpDir };
