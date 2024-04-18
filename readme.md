@@ -20,10 +20,16 @@ Note: in my case, it is located in "`C:\Program Files\PostgreSQL\12\bin`".
 
 ### Step 4: Install libraries
 
+Run the command (only if you haven't started npm in your project yet):
+
+```bash
+npm init
+```
+
 Access the project folder and run the command below:
 
 ```bash
-npm install
+npm install -g
 ```
 
 ### Step 5: Configure databases
