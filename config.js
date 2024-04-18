@@ -6,39 +6,9 @@ const db = fs.existsSync(dbConfFile) ? require(dbConfFile) : require('./pg-impor
 
 if (!db['dbSources'] || !db['dbDestinations']) {
   console.log(`
-    Arquivo de configuração de banco de dados não localizado ou vazio!
-    Crie um arquivo pg-import.db.js na raiz do seu projeto com o seguinte formato:
-
-    module.exports = {
-      'dbSources': {
-        'xxx': {
-          name: process.env.PROD_ERP_NAME,
-          host: process.env.PROD_ERP_HOST,
-          user: process.env.PROD_ERP_USER,
-          password: process.env.PROD_ERP_PASSWORD
-        },
-        'yyy': {
-          name: process.env.DEV_ERP_NAME,
-          host: process.env.DEV_ERP_HOST,
-          user: process.env.DEV_ERP_USER,
-          password: process.env.DEV_ERP_PASSWORD
-        }
-      },
-      'dbDestinations': {
-        'xxx': {
-          name: process.env.PROD_ERP_NAME,
-          host: process.env.PROD_ERP_HOST,
-          user: process.env.PROD_ERP_USER,
-          password: process.env.PROD_ERP_PASSWORD
-        },
-        'yyy': {
-          name: process.env.DEV_ERP_NAME,
-          host: process.env.DEV_ERP_HOST,
-          user: process.env.DEV_ERP_USER,
-          password: process.env.DEV_ERP_PASSWORD
-        }
-      }
-    }`);
+    Database configuration file not found or empty!
+    Create a pg-import.db.js file in the root of your project and fill in the database information.
+  `);
   process.exit(1);
 }
 

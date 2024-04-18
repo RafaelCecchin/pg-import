@@ -20,14 +20,14 @@ if (!onlyRestore) {
   try {
     process.env.PGPASSWORD = dbSourceInfo.password;
 
-    console.log('Executando pg_dump para esquema...');
+    console.log('Running pg_dump for schema...');
     execSync(pgDumpOptionsSchema, { stdio: 'inherit', shell: 'cmd.exe' });
-    console.log('Executando pg_dump para dados...');
+    console.log('Running pg_dump for data...');
     execSync(pgDumpOptionsData, { stdio: 'inherit', shell: 'cmd.exe' });
 
-    console.log('Backup concluído com sucesso.');
+    console.log('Backup completed successfully.');
   } catch (error) {
-    console.error('Erro ao executar pg_dump:', error);
+    console.error('Error when running pg_dump:', error);
     process.exit(1);
   }
 }
@@ -56,18 +56,18 @@ if (!onlyDump) {
   try {
     process.env.PGPASSWORD = dbDestInfo.password;
     
-    console.log('\nPressione qualquer tecla para iniciar a restauração do esquema e dos dados...');
+    console.log('\nPress any key to start schema and data restore...');
 
     waitForEnter(() => {
-      console.log('Restaurando esquema no banco de destino...');
+      console.log('Restoring schema in destination db...');
       pgRestoreSchema.forEach(cmd => {
           execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
       });
 
-      console.log('Restaurando dados no banco de destino...');
+      console.log('Restoring data to destination db...');
       execSync(pgRestoreData, { stdio: 'inherit', shell: 'cmd.exe' });
 
-      console.log('Backup e restauração concluídos com sucesso.');
+      console.log('Backup and restore completed successfully.');
 
       if (removeFiles) {
         fs.unlinkSync(path.join(dumpDir, 'schema'));
@@ -78,7 +78,7 @@ if (!onlyDump) {
       process.stdin.pause();
     });
   } catch (error) {
-    console.error('Erro ao executar psql:', error);
+    console.error('Error when running psql:', error);
     process.exit(1);
   }
 }

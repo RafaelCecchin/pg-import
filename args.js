@@ -6,26 +6,26 @@ const argv = yargs(hideBin(process.argv))
   .options({
     'db-source': {
       alias: 's',
-      description: 'Nome do banco de dados de origem',
+      description: 'Source database name',
       choices: Object.keys(db['dbSources']),
       type: 'string',
       demandOption: true,
     },
     'db-dest': {
       alias: 'd',
-      description: 'Nome do banco de dados de destino',
+      description: 'Target database name',
       choices: Object.keys(db['dbDestinations']),
       type: 'string',
       demandOption: true,
     },
     'tables': {
       alias: 't',
-      description: 'Nomes das tabelas',
+      description: 'Table names',
       type: 'array',
       demandOption: true,
     },
     'clean': {
-      description: 'Limpar o banco de dados de destino antes da cópia',
+      description: 'Clean target database before copying',
       type: 'boolean',
       default: false,
     },
@@ -35,37 +35,37 @@ const argv = yargs(hideBin(process.argv))
       default: 'LATIN1',
     },
     'ignore': {
-      description: 'Ignorar dados de tabelas',
+      description: 'Define data encoding',
       type: 'array'
     },
     'rows-per-insert': {
-      description: 'Quantidade de linhas por insert',
+      description: 'Number of lines per insert',
       type: 'string',
       default: '2000',
     },
     'only-restore': {
-      description: 'Apenas restaura, não faz o DUMP.',
+      description: 'Just restore, don\'t DUMP',
       type: 'boolean',
       default: false,
     },
     'only-dump': {
-      description: 'Apenas faz o DUMP, não restaura.',
+      description: 'Just DUMP, not restore',
       type: 'boolean',
       default: false,
     },
     'rm': {
-      description: 'Remove os arquivos de DUMP.',
+      description: 'Remove DUMP files',
       type: 'boolean',
       default: false,
     }
   })
   .check((argv) => {
     if (argv['only-restore'] && argv['only-dump']) {
-      throw new Error('As opções --only-restore e --only-dump não podem ser usadas simultaneamente.');
+      throw new Error('The --only-restore and --only-dump options cannot be used simultaneously.');
     }
 
     if (argv['only-dump'] && argv['rm']) {
-      throw new Error('As opções --only-dump e --rm não podem ser usadas simultaneamente.');
+      throw new Error('The --only-dump and --rm options cannot be used simultaneously.');
     }
 
     return true;

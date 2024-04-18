@@ -1,56 +1,56 @@
 # PostgreSQL Copy
 
-## Descrição
-Script CLI Node para transferir dados entre bancos de dados PostgreSQL de forma fácil.
+## Description
+Node CLI script to transfer data between PostgreSQL databases easily.
 
-## Como usar
+## How to use
 
-### Passo 1: Instale o PostgreSQL v12 ou superior
+### Step 1: Install PostgreSQL v12 or higher
 
-Isso é necessário para que o comando `--rows-per-insert`, do `pg_dump`, funcione.
+This is necessary for the `--rows-per-insert` command from `pg_dump` to work.
 
-### Passo 2: Adicionar as variáveis de ambiente
+### Step 2: Add the environment variables
 
-Adicione à variável de ambiente do sistema "Path" o caminho da pasta "bin" do seu PostgreSQL.
-Obs: no meu caso, fica localizada em "`C:\Program Files\PostgreSQL\12\bin`".
+Add the path to your PostgreSQL "bin" folder to the "Path" system environment variable.
+Note: in my case, it is located in "`C:\Program Files\PostgreSQL\12\bin`".
 
-### Passo 3: Instale o Node.js (se não tiver)
+### Step 3: Install Node.js (if you don't have it)
 
-[Clique aqui](https://nodejs.org/en) para acessar a página do Node.js e fazer o download.
+[Click here](https://nodejs.org/en) to access the Node.js page and download.
 
-### Passo 4: Instalar bibliotecas
+### Step 4: Install libraries
 
-Acesse a pasta desse projeto e rode o comando abaixo:
+Access the project folder and run the command below:
 
 ```bash
 npm install
 ```
 
-### Passo 5: Configurar bancos de dados
+### Step 5: Configure databases
 
-Edite os objetos `dbSources` e `dbDestinations` do arquivo `config.js`.
-De preferência, utilize o arquivo `.env` para preencher as credenciais de acesso.
+Edit the `dbSources` and `dbDestinations` objects in the `config.js` file.
+Preferably, use the `.env` file to fill in the access credentials.
 
-### Passo 6: Faça as transferências
+### Step 6: Make the transfers
 
-Agora que já está tudo configurado, você pode utilizar o bash para fazer transferências entre bancos de dados.
+Now that everything is configured, you can use bash to make transfers between databases.
 
 ```bash
-node pg-copy.js --db-source=producao --db-dest=producao --tables=rnc cargos defeitos_causas
+node pg-import.js --db-source=producao --db-dest=producao --tables=rnc cargos defeitos_causas
 ```
 
-O script acima vai fazer uma cópia das tabelas (`--tables`) do banco de dados de origem (`--db-source`) para o banco de dados de destino (`--db-dest`).
+The script above will make a copy of the tables (`--tables`) from the source database (`--db-source`) to the destination database (`--db-dest`).
 
-Você também pode passar parâmetros adicionais:
-- `--clean`: Limpar o banco de dados de destino antes da cópia
-- `--encode`: Definir a codificação dos dados
-- `--ignore`: Informar que devem ser ignorados na exportação
-- `--rows-per-insert`: Quantidade de linhas por insert
-- `--only-restore`: Apenas restaurar, sem fazer o DUMP
-- `--only-dump`: Apenas fazer o DUMP, sem restaurar
-- `--rm`: Remover os arquivos de backup
+You can also pass additional parameters:
+- `--clean`: Clean the target database before copying
+- `--encode`: Set the data encoding
+- `--ignore`: Inform that they should be ignored during export
+- `--rows-per-insert`: Number of rows per insert
+- `--only-restore`: Just restore, without doing DUMP
+- `--only-dump`: Only DUMP, without restoring
+- `--rm`: Remove backup files
 
-### Considerações finais
+### Final considerations
 
-Ainda que esse script facilite a transferência de dados entre bancos PostgreSQL, o processo pode ser melhorado.
-Colabore com esse pequeno projeto, faça um pull request.
+Although this script facilitates data transfer between PostgreSQL databases, the process can be improved.
+Collaborate with this small project, make a pull request.
