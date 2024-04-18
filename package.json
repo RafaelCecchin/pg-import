@@ -1,12 +1,13 @@
 {
   "name": "@rafaelcecchin/pg-import",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "description": "Node CLI script to transfer data between PostgreSQL databases easily.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pg-import": "node pg-import.js"
+    "pg-import": "node pg-import.js",
+    "global pg-import": "node pg-import.js"
   },
   "author": "RafaelCecchin",
   "license": "ISC",
