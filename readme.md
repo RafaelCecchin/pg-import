@@ -26,23 +26,61 @@ Run the command (only if you haven't started npm in your project yet):
 npm init
 ```
 
-Access the project folder and run the command below:
+Run the command below:
 
 ```bash
-npm install -g
+npm install @rafaelcecchin/pg-import
 ```
 
 ### Step 5: Configure databases
 
-Edit the `dbSources` and `dbDestinations` objects in the `config.js` file.
+Create a file called `pg-import.db.js` in the root of your project.
+
+In this file there must be 2 objects: `dbSources` and `dbDestinations`.
+
 Preferably, use the `.env` file to fill in the access credentials.
+
+Below I present an example:
+
+```javascript
+module.exports = {
+  'dbSources': {
+    'erp': {
+      name: 'erp',
+      host: process.env.PROD_ERP_HOST,
+      user: process.env.PROD_ERP_USER,
+      password: process.env.PROD_ERP_PASSWORD
+    },
+    'producao': {
+      name: 'Sistema Producao',
+      host: process.env.PROD_PRODUCAO_HOST,
+      user: process.env.PROD_PRODUCAO_USER,
+      password: process.env.PROD_PRODUCAO_PASSWORD
+    },
+  },
+  'dbDestinations': {
+    'erp': {
+      name: 'erp',
+      host: process.env.DEV_ERP_HOST,
+      user: process.env.DEV_ERP_USER,
+      password: process.env.DEV_ERP_PASSWORD
+    },
+    'producao': {
+      name: 'Sistema Producao',
+      host: process.env.DEV_PRODUCAO_HOST,
+      user: process.env.DEV_PRODUCAO_USER,
+      password: process.env.DEV_PRODUCAO_PASSWORD
+    }
+  }
+}
+```
 
 ### Step 6: Make the transfers
 
 Now that everything is configured, you can use bash to make transfers between databases.
 
 ```bash
-node pg-import.js --db-source=producao --db-dest=producao --tables=rnc cargos defeitos_causas
+node node_modules/@rafaelcecchin/pg-import/pg-import.js --db-source=producao --db-dest=producao --tables=rnc cargos defeitos_causas
 ```
 
 The script above will make a copy of the tables (`--tables`) from the source database (`--db-source`) to the destination database (`--db-dest`).
