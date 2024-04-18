@@ -1,7 +1,7 @@
 # PostgreSQL Copy
 
 ## Description
-Node CLI script to transfer data between PostgreSQL databases easily.
+Node script to transfer data between PostgreSQL databases easily.
 
 ## How to use
 
@@ -34,65 +34,74 @@ npm install @rafaelcecchin/pg-import
 
 ### Step 5: Configure databases
 
-Create a file called `pg-import.db.js` in the root of your project.
-
-In this file there must be 2 objects: `dbSources` and `dbDestinations`.
-
-Preferably, use the `.env` file to fill in the access credentials.
+Create a file called `pg-import.config.js` in the root of your project.
 
 Below I present an example:
 
 ```javascript
 module.exports = {
-  'dbSources': {
-    'erp': {
+  'db': {
+    'erp-prod': {
       name: 'erp',
       host: process.env.PROD_ERP_HOST,
       user: process.env.PROD_ERP_USER,
       password: process.env.PROD_ERP_PASSWORD
     },
-    'producao': {
-      name: 'Sistema Producao',
-      host: process.env.PROD_PRODUCAO_HOST,
-      user: process.env.PROD_PRODUCAO_USER,
-      password: process.env.PROD_PRODUCAO_PASSWORD
-    },
-  },
-  'dbDestinations': {
-    'erp': {
+    'erp-dev': {
       name: 'erp',
       host: process.env.DEV_ERP_HOST,
       user: process.env.DEV_ERP_USER,
       password: process.env.DEV_ERP_PASSWORD
-    },
-    'producao': {
-      name: 'Sistema Producao',
-      host: process.env.DEV_PRODUCAO_HOST,
-      user: process.env.DEV_PRODUCAO_USER,
-      password: process.env.DEV_PRODUCAO_PASSWORD
     }
-  }
+  },
+  'import': [
+    {
+      'id': 'import1',
+      'source': 'erp-prod',
+      'destination': 'erp-dev',
+      'tables': [
+        'nfec',
+        'rotas'
+      ],
+      'clean': false,
+      'encode': 'LATIN1',
+      'rows-per-insert': 5000
+    },
+    {
+      'id': 'import2',
+      'source': 'erp-prod',
+      'destination': 'erp-dev',
+      'tables': [
+        'clientes'
+      ],
+      'clean': false,
+      'encode': 'LATIN1',
+      'rows-per-insert': 5000
+    }
+  ]
 }
 ```
+
+Import args
+- `id`: Import identification
+- `source`: Source database
+- `destination`: Destination database
+- `tables`: Tables to transfer
+- `clean`: Clean the target database before copying
+- `encode`: Set the data encoding
+- `ignore`: Inform that they should be ignored during export
+- `rows-per-insert`: Number of rows per insert
+- `only-restore`: Just restore, without doing DUMP
+- `only-dump`: Only DUMP, without restoring
+- `rm`: Remove backup files
 
 ### Step 6: Make the transfers
 
 Now that everything is configured, you can use bash to make transfers between databases.
 
 ```bash
-node node_modules/@rafaelcecchin/pg-import/pg-import.js --db-source=producao --db-dest=producao --tables=rnc cargos defeitos_causas
+node node_modules/@rafaelcecchin/pg-import/pg-import.js
 ```
-
-The script above will make a copy of the tables (`--tables`) from the source database (`--db-source`) to the destination database (`--db-dest`).
-
-You can also pass additional parameters:
-- `--clean`: Clean the target database before copying
-- `--encode`: Set the data encoding
-- `--ignore`: Inform that they should be ignored during export
-- `--rows-per-insert`: Number of rows per insert
-- `--only-restore`: Just restore, without doing DUMP
-- `--only-dump`: Only DUMP, without restoring
-- `--rm`: Remove backup files
 
 ### Final considerations
 

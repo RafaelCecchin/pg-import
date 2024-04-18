@@ -1,0 +1,41 @@
+module.exports = {
+  'db': {
+    'erp-prod': {
+      name: 'erp',
+      host: process.env.PROD_ERP_HOST,
+      user: process.env.PROD_ERP_USER,
+      password: process.env.PROD_ERP_PASSWORD
+    },
+    'erp-dev': {
+      name: 'erp',
+      host: process.env.DEV_ERP_HOST,
+      user: process.env.DEV_ERP_USER,
+      password: process.env.DEV_ERP_PASSWORD
+    }
+  },
+  'import': [
+    {
+      'id': 'import1',
+      'source': 'erp-prod',
+      'destination': 'erp-dev',
+      'tables': [
+        'nfec',
+        'rotas'
+      ],
+      'clean': false,
+      'encode': 'LATIN1',
+      'rows-per-insert': 5000
+    },
+    {
+      'id': 'import2',
+      'source': 'erp-prod',
+      'destination': 'erp-dev',
+      'tables': [
+        'clientes'
+      ],
+      'clean': false,
+      'encode': 'LATIN1',
+      'rows-per-insert': 5000
+    }
+  ]
+}
