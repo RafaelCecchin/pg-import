@@ -2,3 +2,5 @@
 node_modules
 dump_files
 services
+pg-import.config.js
+package-lock.json
