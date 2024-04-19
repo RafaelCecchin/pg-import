@@ -1,12 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
-function waitForEnter(callback) {
-    process.stdin.setRawMode(true);
-    process.stdin.resume();
-    process.stdin.once('data', () => {
-    process.stdin.setRawMode(false);
-        if (callback) callback();
+async function waitForKey() {
+    return new Promise(resolve => {
+        process.stdin.resume();
+        process.stdin.setEncoding('utf8');
+        process.stdin.once('data', () => {
+            resolve();
+            process.stdin.pause();
+        });
     });
 }
 
@@ -66,4 +68,4 @@ function isValidImport(importData) {
     return true;
 }
 
-module.exports = { waitForEnter, createDumpFolder, isValidImport };  
+module.exports = { waitForKey, createDumpFolder, isValidImport };  
