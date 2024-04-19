@@ -47,6 +47,12 @@ function isValidImport(importData) {
         return false;
     }
 
+    if (!importData['encode']) {
+        console.log(`Error: Import ${id}`);
+        console.log('Encode not defined!');
+        return false;
+    }
+
     if (!importData['tables'] || !importData['tables'].length) {
         console.log(`Error: Import ${id}`);
         console.log('Tables not defined!');

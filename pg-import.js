@@ -35,6 +35,9 @@ const path = require('path');
     const schemaFileDir = path.join(dumpFolder, 'schema');
     const dataFileDir = path.join(dumpFolder, 'data');
 
+    // Set PSQL ENCODING
+    process.env.PGCLIENTENCODING = encode;
+
     // DUMP
     if (!onlyRestore) {
       const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${encode} -x -O -s ${clean ? '-c -C' : ''} -t ${tables.join(' -t ')} -Fp "${dbSourceInfo.name}" > ${schemaFileDir}`;
