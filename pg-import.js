@@ -21,9 +21,11 @@ const path = require('path');
     const dbSourceInfo = configFile['db'][el['source']];
     const dbDestInfo = configFile['db'][el['destination']];
     const tables = el['tables'];
-
     const clean = el['clean'];
     const encode = el['encode'];
+    const template = el['template'];
+    const lc_collate = el['lc-collate'];
+    const lc_ctype = el['lc-ctype'];
     const ignore = el['ignore'];
     const rowsPerInsert = el['rows-per-insert'];
     const onlyRestore = el['only-restore'];
@@ -66,7 +68,7 @@ const path = require('path');
       if (clean) {
         pgRestoreSchema = [
           `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "DROP DATABASE IF EXISTS \\"${dbDestInfo.name}\\""`,
-          `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE \\"${dbDestInfo.name}\\" WITH TEMPLATE = template0 ENCODING = '${encode}' LC_COLLATE = 'C' LC_CTYPE = 'C'"`,
+          `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE \\"${dbDestInfo.name}\\" WITH ENCODING = '${encode}' ${template ? `TEMPLATE = '${template}'` : ''} ${lc_collate ? `LC_COLLATE = '${lc_collate}'` : ''} ${lc_ctype ? `LC_CTYPE = '${lc_ctype}'` : ''}"`,
           `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT CONNECT ON DATABASE \\"${dbDestInfo.name}\\" TO ${dbDestInfo.user};"`,
           `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT USAGE ON SCHEMA public TO ${dbDestInfo.user};"`
         ];

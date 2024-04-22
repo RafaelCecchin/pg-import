@@ -88,12 +88,15 @@ Import args
 - `destination`: Destination database
 - `tables`: Tables to transfer
 - `clean`: Clean the target database before copying
-- `encode`: Set the data encoding
+  - `encode`: Set the database encoding
+  - `template`: Set the database template
+  - `lc-collate`: Set the database collate
+  - `lc-ctype`: Set the database ctype
 - `ignore`: Inform that they should be ignored during export
 - `rows-per-insert`: Number of rows per insert
 - `only-restore`: Just restore, without doing DUMP
 - `only-dump`: Only DUMP, without restoring
-- `rm`: Remove backup files
+- `rm`: Auto remove backup files
 
 ### Step 6: Make the transfers
 
