@@ -83,7 +83,6 @@ module.exports = {
 ```
 
 Import args
-- `id`: Import identification
 - `source`: Source database
 - `destination`: Destination database
 - `tables`: Tables to transfer
