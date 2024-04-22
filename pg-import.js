@@ -5,9 +5,10 @@ const fs = require('fs');
 const path = require('path');
 
 (async () => {
-  for (const el of configFile['import']) {
-    
-    const importID = el['id'];
+  for (const [key, value] of Object.entries(configFile['import'])) {
+
+    const importID = key;
+    const el = value;
 
     console.log(`\n`);
     console.log(`- - - - - - - - - - - - - - - -`);

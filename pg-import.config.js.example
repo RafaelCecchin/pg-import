@@ -13,21 +13,21 @@ module.exports = {
       password: process.env.DEV_ERP_PASSWORD
     }
   },
-  'import': [
-    {
-      'id': 'import1',
+  'import': {
+    'import1': {
       'source': 'erp-prod',
       'destination': 'erp-dev',
       'tables': [
-        'nfec',
         'rotas'
       ],
-      'clean': false,
+      'clean': true,
       'encode': 'LATIN1',
-      'rows-per-insert': 5000
+      'rows-per-insert': 5000,
+      'template': 'template0',
+      'lc-collate': 'C',
+      'lc-ctype': 'C'
     },
-    {
-      'id': 'import2',
+    'import2': {
       'source': 'erp-prod',
       'destination': 'erp-dev',
       'tables': [
@@ -37,5 +37,5 @@ module.exports = {
       'encode': 'LATIN1',
       'rows-per-insert': 5000
     }
-  ]
+  }
 }
