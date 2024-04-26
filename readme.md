@@ -42,16 +42,18 @@ Below I present an example:
 module.exports = {
   'db': {
     'erp-prod': {
-      name: 'erp',
+      name: process.env.PROD_ERP_NAME,
+      port: process.env.PROD_ERP_PORT,
       host: process.env.PROD_ERP_HOST,
       user: process.env.PROD_ERP_USER,
-      password: process.env.PROD_ERP_PASSWORD
+      pass: process.env.PROD_ERP_PASS
     },
     'erp-dev': {
-      name: 'erp',
+      name: process.env.DEV_ERP_NAME,
+      port: process.env.DEV_ERP_PORT,
       host: process.env.DEV_ERP_HOST,
       user: process.env.DEV_ERP_USER,
-      password: process.env.DEV_ERP_PASSWORD
+      pass: process.env.DEV_ERP_PASS
     }
   },
   'import': {
@@ -61,7 +63,7 @@ module.exports = {
       'tables': [
         'rotas'
       ],
-      'clean': true,
+      'create-db': true,
       'encode': 'LATIN1',
       'rows-per-insert': 5000,
       'template': 'template0',
@@ -74,7 +76,7 @@ module.exports = {
       'tables': [
         'clientes'
       ],
-      'clean': false,
+      'create-db': false,
       'encode': 'LATIN1',
       'rows-per-insert': 5000
     }
@@ -86,7 +88,7 @@ Import args
 - `source`: Source database
 - `destination`: Destination database
 - `tables`: Tables to transfer
-- `clean`: Clean the target database before copying
+- `create-db`: Create database
   - `encode`: Set the database encoding
   - `template`: Set the database template
   - `lc-collate`: Set the database collate

@@ -23,6 +23,7 @@ const path = require('path');
     const dbDestInfo = configFile['db'][el['destination']];
     const tables = el['tables'];
     const clean = el['clean'];
+    const create_db = el['create-db'];
     const encode = el['encode'];
     const template = el['template'];
     const lc_collate = el['lc-collate'];
@@ -43,12 +44,15 @@ const path = require('path');
 
     // DUMP
     if (!onlyRestore) {
-      const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${encode} -x -O -s ${clean ? '-c -C' : ''} -t ${tables.join(' -t ')} -Fp "${dbSourceInfo.name}" > ${schemaFileDir}`;
-      const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p 5432 -E ${encode} -x -O --rows-per-insert=${rowsPerInsert} -Fp --column-inserts -a -t ${tables.join(' -t ')} ${ignore ? `-T ${ignore.join(' -T ')}` : ''} "${dbSourceInfo.name}" > ${dataFileDir}`;
+      const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p ${dbSourceInfo.port ?? 5432} -E ${encode} -x -O -s -v --no-comments -c --if-exists -t ${tables.join(' -t ')} -Fc "${dbSourceInfo.name}" > ${schemaFileDir}`;
+      const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p ${dbSourceInfo.port ?? 5432} -E ${encode} -x -O -v --on-conflict-do-nothing --no-comments --disable-dollar-quoting --rows-per-insert=${rowsPerInsert} -Fc --column-inserts -a -t ${tables.join(' -t ')} ${ignore ? `-T ${ignore.join(' -T ')}` : ''} "${dbSourceInfo.name}" > ${dataFileDir}`;
 
       try {
-        process.env.PGPASSWORD = dbSourceInfo.password;
+        process.env.PGPASSWORD = dbSourceInfo.pass;
 
+        console.log('\nPress [ENTER] to start dump...');
+        await waitForKey();
+        
         console.log('Running pg_dump for schema...');
         execSync(pgDumpOptionsSchema, { stdio: 'inherit', shell: 'cmd.exe' });
         console.log('Running pg_dump for data...');
@@ -64,34 +68,29 @@ const path = require('path');
     // RESTORE
     if (!onlyDump) {
 
-      let pgRestoreSchema = [];
-
-      if (clean) {
-        pgRestoreSchema = [
-          `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "DROP DATABASE IF EXISTS \\"${dbDestInfo.name}\\""`,
-          `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE \\"${dbDestInfo.name}\\" WITH ENCODING = '${encode}' ${template ? `TEMPLATE = '${template}'` : ''} ${lc_collate ? `LC_COLLATE = '${lc_collate}'` : ''} ${lc_ctype ? `LC_CTYPE = '${lc_ctype}'` : ''}"`,
-          `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT CONNECT ON DATABASE \\"${dbDestInfo.name}\\" TO ${dbDestInfo.user};"`,
-          `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT USAGE ON SCHEMA public TO ${dbDestInfo.user};"`
-        ];
-      } else {
-        tables.forEach(element => {
-          pgRestoreSchema.push(`psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -1 -c "DROP TABLE IF EXISTS \\"${element}\\""`);
-        });
-      }
-      
-      pgRestoreSchema.push(`psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -1 -f ${schemaFileDir}`);
-      const pgRestoreData = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -1 -f ${dataFileDir}`;
+      const pgRestoreSchema = `pg_restore -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -c --if-exists -x -O -v -Fc -d \"${dbDestInfo.name}\" ${schemaFileDir}`;
+      const pgRestoreData = `pg_restore -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -x -O -v -Fc -d \"${dbDestInfo.name}\" ${dataFileDir}`;
 
       try {
-        process.env.PGPASSWORD = dbDestInfo.password;
+        process.env.PGPASSWORD = dbDestInfo.pass;
         
         console.log('\nPress [ENTER] to start schema and data restore...');
         await waitForKey();
 
         console.log('Restoring schema in destination db...');
-        for (const cmd of pgRestoreSchema) {
+        if (create_db) {
+          pgCreateDB = [
+            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "DROP DATABASE IF EXISTS \\"${dbDestInfo.name}\\""`,
+            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE \\"${dbDestInfo.name}\\" WITH ENCODING = '${encode}' ${template ? `TEMPLATE = '${template}'` : ''} ${lc_collate ? `LC_COLLATE = '${lc_collate}'` : ''} ${lc_ctype ? `LC_CTYPE = '${lc_ctype}'` : ''}"`,
+            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT CONNECT ON DATABASE \\"${dbDestInfo.name}\\" TO ${dbDestInfo.user};"`,
+            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT USAGE ON SCHEMA public TO ${dbDestInfo.user};"`
+          ];
+
+          for (const cmd of pgCreateDB) {
             execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
+          }
         }
+        execSync(pgRestoreSchema, { stdio: 'inherit', shell: 'cmd.exe' });
 
         console.log('Restoring data to destination db...');
         execSync(pgRestoreData, { stdio: 'inherit', shell: 'cmd.exe' });
@@ -103,8 +102,6 @@ const path = require('path');
           fs.unlinkSync(dataFileDir);
         }
 
-        process.stdin.setRawMode(false);
-        process.stdin.pause();
       } catch (error) {
         console.error('Error when running psql:', error);
         process.exit(1);
