@@ -94,6 +94,10 @@ Import args
   - `lc-collate`: Set the database collate
   - `lc-ctype`: Set the database ctype
 - `ignore`: Inform that they should be ignored during export
+- `before-schema`: Scripts to run before schema import
+- `after-schema`: Scripts to run after schema import
+- `before-data`: Scripts to run before data import
+- `after-data`: Scripts to run after data import
 - `rows-per-insert`: Number of rows per insert
 - `only-restore`: Just restore, without doing DUMP
 - `only-dump`: Only DUMP, without restoring

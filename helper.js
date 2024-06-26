@@ -1,17 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-async function waitForKey() {
-    return new Promise(resolve => {
-        process.stdin.resume();
-        process.stdin.setEncoding('utf8');
-        process.stdin.once('data', () => {
-            resolve();
-            process.stdin.pause();
-        });
-    });
-}
-
 function createDumpFolder(importID) {
   const dumpDir = path.join(process.cwd(), 'dump_files');
   if (!fs.existsSync(dumpDir)) {
@@ -43,11 +32,6 @@ function isValidImport(importData) {
         return false;
     }
 
-    if (!importData['tables'] || !importData['tables'].length) {
-        console.log('Tables not defined!');
-        return false;
-    }
-
     if (importData['only-restore'] && importData['only-dump']) {
         console.log('The "only-restore" and "only-dump" options cannot be used simultaneously.');
         return false;
@@ -61,4 +45,4 @@ function isValidImport(importData) {
     return true;
 }
 
-module.exports = { waitForKey, createDumpFolder, isValidImport };  
+module.exports = { createDumpFolder, isValidImport };  
