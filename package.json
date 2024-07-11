@@ -1,6 +1,6 @@
 {
   "name": "@rafaelcecchin/pg-import",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "private": false,
   "description": "Node script to transfer data between PostgreSQL databases easily.",
   "main": "index.js",
