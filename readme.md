@@ -1,24 +1,24 @@
-# PostgreSQL Copy
+# PostgreSQL Import 🚀 - Transfer data between PostgreSQL databases easily.
 
 ## Description
-Node script to transfer data between PostgreSQL databases easily.
+Node script to transfer data between PostgreSQL databases easily. 🛠️
 
 ## How to use
 
-### Step 1: Install PostgreSQL v12 or higher
+### Step 1: Install PostgreSQL v12 or higher 🐘
 
 This is necessary for the `--rows-per-insert` command from `pg_dump` to work.
 
-### Step 2: Add the environment variables
+### Step 2: Add the environment variables 🌐
 
 Add the path to your PostgreSQL "bin" folder to the "Path" system environment variable.
 Note: in my case, it is located in "`C:\Program Files\PostgreSQL\12\bin`".
 
-### Step 3: Install Node.js (if you don't have it)
+### Step 3: Install Node.js (if you don't have it) 🟢
 
 [Click here](https://nodejs.org/en) to access the Node.js page and download.
 
-### Step 4: Install libraries
+### Step 4: Install libraries 📦
 
 Run the command (only if you haven't started npm in your project yet):
 
@@ -32,7 +32,7 @@ Run the command below:
 npm install @rafaelcecchin/pg-import
 ```
 
-### Step 5: Configure databases
+### Step 5: Configure databases 🗄️
 
 Create a file called `pg-import.config.js` in the root of your project.
 
@@ -84,7 +84,7 @@ module.exports = {
 }
 ```
 
-Import args
+Import args 📋
 - `source`: Source database
 - `destination`: Destination database
 - `tables`: Tables to transfer
@@ -103,7 +103,7 @@ Import args
 - `only-dump`: Only DUMP, without restoring
 - `rm`: Auto remove backup files
 
-### Step 6: Make the transfers
+### Step 6: Make the transfers 🔄
 
 Now that everything is configured, you can use bash to make transfers between databases.
 
@@ -111,7 +111,21 @@ Now that everything is configured, you can use bash to make transfers between da
 node node_modules/@rafaelcecchin/pg-import/pg-import.js
 ```
 
-### Final considerations
+Alternatively, you can streamline the process by adding the following script to your `package.json`:
+
+```json
+"scripts": {
+  "import": "node node_modules/@rafaelcecchin/pg-import/pg-import.js"
+}
+```
+
+Then, you can run the transfer command with:
+
+```bash
+npm run import
+```
+
+### Final considerations 💡
 
 Although this script facilitates data transfer between PostgreSQL databases, the process can be improved.
-Collaborate with this small project, make a pull request.
+Collaborate with this small project, make a pull request. 🤝
