@@ -82,10 +82,10 @@ const path = require('path');
         if (create_db) {
           console.log('Drop and create destination db...');
           pgCreateDB = [
-            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "DROP DATABASE IF EXISTS \\"${dbDestInfo.name}\\""`,
-            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "CREATE DATABASE \\"${dbDestInfo.name}\\" WITH ENCODING = '${encode}' ${template ? `TEMPLATE = '${template}'` : ''} ${lc_collate ? `LC_COLLATE = '${lc_collate}'` : ''} ${lc_ctype ? `LC_CTYPE = '${lc_ctype}'` : ''}"`,
-            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT CONNECT ON DATABASE \\"${dbDestInfo.name}\\" TO ${dbDestInfo.user};"`,
-            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -c "GRANT USAGE ON SCHEMA public TO ${dbDestInfo.user};"`
+            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -c "DROP DATABASE IF EXISTS \\"${dbDestInfo.name}\\""`,
+            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -c "CREATE DATABASE \\"${dbDestInfo.name}\\" WITH ENCODING = '${encode}' ${template ? `TEMPLATE = '${template}'` : ''} ${lc_collate ? `LC_COLLATE = '${lc_collate}'` : ''} ${lc_ctype ? `LC_CTYPE = '${lc_ctype}'` : ''}"`,
+            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -c "GRANT CONNECT ON DATABASE \\"${dbDestInfo.name}\\" TO ${dbDestInfo.user};"`,
+            `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -c "GRANT USAGE ON SCHEMA public TO ${dbDestInfo.user};"`
           ];
 
           for (const cmd of pgCreateDB) {
@@ -96,7 +96,7 @@ const path = require('path');
         if (beforeImportSchemaScripts.length) {
           console.log('Scripts to run before schema import...');
           for (const script of beforeImportSchemaScripts) {
-            cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -c "${script}"`;
+            cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -d \"${dbDestInfo.name}\" -c "${script}"`;
             execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
           }
         }
@@ -107,7 +107,7 @@ const path = require('path');
         if (afterImportSchemaScripts.length) {
           console.log('Scripts to run after schema import...');
           for (const script of afterImportSchemaScripts) {
-            cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -c "${script}"`;
+            cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -d \"${dbDestInfo.name}\" -c "${script}"`;
             execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
           }
         }
@@ -115,7 +115,7 @@ const path = require('path');
         if (beforeImportDataScripts.length) {
           console.log('Scripts to run before data import...');
           for (const script of beforeImportDataScripts) {
-            cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -c "${script}"`;
+            cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -d \"${dbDestInfo.name}\" -c "${script}"`;
             execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
           }
         }
@@ -126,7 +126,7 @@ const path = require('path');
         if (afterImportDataScripts.length) {
           console.log('Scripts to run after data import...');
           for (const script of afterImportDataScripts) {
-            cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p 5432 -d \"${dbDestInfo.name}\" -c "${script}"`;
+            cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -d \"${dbDestInfo.name}\" -c "${script}"`;
             execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
           }
         }
