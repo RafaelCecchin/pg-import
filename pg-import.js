@@ -60,9 +60,9 @@ const path = require('path');
         process.env.PGPASSWORD = dbSourceInfo.pass;
         
         console.log('Running pg_dump for schema...');
-        execSync(pgDumpOptionsSchema, { stdio: 'inherit', shell: 'cmd.exe' });
+        execSync(pgDumpOptionsSchema, { stdio: 'inherit' });
         console.log('Running pg_dump for data...');
-        execSync(pgDumpOptionsData, { stdio: 'inherit', shell: 'cmd.exe' });
+        execSync(pgDumpOptionsData, { stdio: 'inherit' });
 
         console.log('Backup completed successfully.');
       } catch (error) {
@@ -89,7 +89,7 @@ const path = require('path');
           ];
 
           for (const cmd of pgCreateDB) {
-            execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
+            execSync(cmd, { stdio: 'inherit' });
           }
         }
 
@@ -97,18 +97,18 @@ const path = require('path');
           console.log('Scripts to run before schema import...');
           for (const script of beforeImportSchemaScripts) {
             cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -d \"${dbDestInfo.name}\" -c "${script}"`;
-            execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
+            execSync(cmd, { stdio: 'inherit' });
           }
         }
 
         console.log('Restoring schema in destination db...');
-        execSync(pgRestoreSchema, { stdio: 'inherit', shell: 'cmd.exe' });
+        execSync(pgRestoreSchema, { stdio: 'inherit' });
 
         if (afterImportSchemaScripts.length) {
           console.log('Scripts to run after schema import...');
           for (const script of afterImportSchemaScripts) {
             cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -d \"${dbDestInfo.name}\" -c "${script}"`;
-            execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
+            execSync(cmd, { stdio: 'inherit' });
           }
         }
 
@@ -116,18 +116,18 @@ const path = require('path');
           console.log('Scripts to run before data import...');
           for (const script of beforeImportDataScripts) {
             cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -d \"${dbDestInfo.name}\" -c "${script}"`;
-            execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
+            execSync(cmd, { stdio: 'inherit' });
           }
         }
 
         console.log('Restoring data to destination db...');
-        execSync(pgRestoreData, { stdio: 'inherit', shell: 'cmd.exe' });
+        execSync(pgRestoreData, { stdio: 'inherit' });
         
         if (afterImportDataScripts.length) {
           console.log('Scripts to run after data import...');
           for (const script of afterImportDataScripts) {
             cmd = `psql -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -d \"${dbDestInfo.name}\" -c "${script}"`;
-            execSync(cmd, { stdio: 'inherit', shell: 'cmd.exe' });
+            execSync(cmd, { stdio: 'inherit' });
           }
         }
 
