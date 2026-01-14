@@ -53,8 +53,8 @@ const path = require('path');
 
     // DUMP
     if (!onlyRestore) {
-      const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p ${dbSourceInfo.port ?? 5432} -E ${encode} -x -O -s -v --no-comments -c --if-exists -t ${tables.join(' -t ')} -Fc "${dbSourceInfo.name}" > ${schemaFileDir}`;
-      const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p ${dbSourceInfo.port ?? 5432} -E ${encode} -x -O -v --on-conflict-do-nothing --no-comments --rows-per-insert=${rowsPerInsert} -Fc --column-inserts -a -t ${tables.join(' -t ')} ${ignore ? `-T ${ignore.join(' -T ')}` : ''} "${dbSourceInfo.name}" > ${dataFileDir}`;
+      const pgDumpOptionsSchema = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p ${dbSourceInfo.port ?? 5432} -E ${encode} -x -O -s -v --no-comments -c --if-exists -t ${tables.join(' -t ')} -Fc "${dbSourceInfo.name}" > \"${schemaFileDir}\"`;
+      const pgDumpOptionsData = `pg_dump -U ${dbSourceInfo.user} -h ${dbSourceInfo.host} -p ${dbSourceInfo.port ?? 5432} -E ${encode} -x -O -v --on-conflict-do-nothing --no-comments --rows-per-insert=${rowsPerInsert} -Fc --column-inserts -a -t ${tables.join(' -t ')} ${ignore ? `-T ${ignore.join(' -T ')}` : ''} "${dbSourceInfo.name}" > \"${dataFileDir}\"`;
 
       try {
         process.env.PGPASSWORD = dbSourceInfo.pass;
@@ -73,8 +73,8 @@ const path = require('path');
 
     // RESTORE
     if (!onlyDump) {
-      const pgRestoreSchema = `pg_restore -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -c --if-exists -x -O -v -Fc -d \"${dbDestInfo.name}\" ${schemaFileDir}`;
-      const pgRestoreData = `pg_restore -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -x -O -v -Fc -d \"${dbDestInfo.name}\" ${dataFileDir}`;
+      const pgRestoreSchema = `pg_restore -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -c --if-exists -x -O -v -Fc -d \"${dbDestInfo.name}\" \"${schemaFileDir}\"`;
+      const pgRestoreData = `pg_restore -U ${dbDestInfo.user} -h ${dbDestInfo.host} -p ${dbDestInfo.port ?? 5432} -x -O -v -Fc -d \"${dbDestInfo.name}\" \"${dataFileDir}\"`;
 
       try {
         process.env.PGPASSWORD = dbDestInfo.pass;
